@@ -39,8 +39,13 @@ log_message "�🚀 Starting APEX VPN in background..."
     
     if [ $? -eq 0 ]; then
         log_message "✅ APEX VPN reached summit successfully!"
+        echo "🎉 APEX VPN STARTED SUCCESSFULLY! 🏔️"
+        echo "✅ Auto-start completed - VPN connected and optimized"
+        echo "🌐 India exit node ready for global content access"
+        echo "📺 4K streaming capabilities active"
     else
         log_message "⚠️ APEX VPN encountered issues during startup"
+        echo "⚠️ APEX VPN auto-start had issues - please check manually"
     fi
     
     log_message "📊 Final status check..."

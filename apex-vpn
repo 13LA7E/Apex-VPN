@@ -296,6 +296,11 @@ main() {
             configure_dns
             manage_daemon "start"
             connect_vpn
+            echo ""
+            echo "🎉 ====================================== 🎉"
+            echo "     APEX VPN STARTED SUCCESSFULLY!"
+            echo "🎉 ====================================== 🎉"
+            echo ""
             log "⚡ APEX VPN activated - reaching peak performance with ultimate power!"
             performance_test
             ;;

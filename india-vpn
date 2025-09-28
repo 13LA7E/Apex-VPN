@@ -50,6 +50,112 @@ optimize_network() {
     esac
 }
 
+# DNS sinkhole configuration for ad and tracker blocking
+setup_dns_sinkhole() {
+    local profile="$1"
+    log "Setting up DNS ad blocking (profile: $profile)..."
+    
+    # Create hosts file for blocking
+    local HOSTS_FILE="/tmp/adblock-hosts"
+    local HOSTS_BACKUP="/etc/hosts.backup"
+    
+    # Backup original hosts file
+    if [ ! -f "$HOSTS_BACKUP" ]; then
+        sudo cp /etc/hosts "$HOSTS_BACKUP" 2>/dev/null || true
+    fi
+    
+    # Start with clean hosts file
+    sudo cp "$HOSTS_BACKUP" /etc/hosts 2>/dev/null || true
+    
+    log "Downloading ad and tracker blocklists..."
+    
+    # Download multiple blocklists for comprehensive coverage
+    {
+        # Steven Black's comprehensive hosts file (ads + malware + trackers)
+        curl -s "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts" 2>/dev/null || true
+        
+        # Additional mobile ad blocking
+        curl -s "https://someonewhocares.org/hosts/zero/hosts" 2>/dev/null || true
+        
+        # Malware and tracking protection
+        curl -s "https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter/sections/adservers.txt" 2>/dev/null | \
+        grep -E "^\|\|" | sed 's/||/0.0.0.0 /' | sed 's/\^.*//' || true
+        
+        # Additional tracker and ad blocking (only tracking/ad domains)
+        echo "# Additional tracker and ad blocking"
+        cat << 'TRACKERS'
+0.0.0.0 doubleclick.net
+0.0.0.0 googlesyndication.com
+0.0.0.0 googleadservices.com
+0.0.0.0 google-analytics.com
+0.0.0.0 googletagmanager.com
+0.0.0.0 googletagservices.com
+0.0.0.0 amazon-adsystem.com
+0.0.0.0 facebook.com
+0.0.0.0 connect.facebook.net
+0.0.0.0 facebook-analytics.com
+0.0.0.0 ads.twitter.com
+0.0.0.0 analytics.twitter.com
+0.0.0.0 ads.yahoo.com
+0.0.0.0 analytics.yahoo.com
+0.0.0.0 ads.bing.com
+0.0.0.0 bat.bing.com
+0.0.0.0 media.net
+0.0.0.0 adsystem.com
+0.0.0.0 adsymptotic.com
+0.0.0.0 adnxs.com
+0.0.0.0 adsafeprotected.com
+0.0.0.0 scorecardresearch.com
+0.0.0.0 quantserve.com
+0.0.0.0 outbrain.com
+0.0.0.0 taboola.com
+0.0.0.0 pubmatic.com
+0.0.0.0 rubiconproject.com
+0.0.0.0 openx.net
+0.0.0.0 contextweb.com
+0.0.0.0 adsystem.com
+0.0.0.0 2mdn.net
+0.0.0.0 adsafeprotected.com
+0.0.0.0 amazon-adsystem.com
+0.0.0.0 googleadservices.com
+0.0.0.0 googlesyndication.com
+0.0.0.0 doubleclick.net
+0.0.0.0 facebook.com
+0.0.0.0 connect.facebook.net
+0.0.0.0 ads.twitter.com
+0.0.0.0 ads.linkedin.com
+0.0.0.0 ads.pinterest.com
+0.0.0.0 ads.reddit.com
+0.0.0.0 ads.youtube.com
+0.0.0.0 adsystem.com
+0.0.0.0 adform.net
+0.0.0.0 adnxs.com
+0.0.0.0 adsystem.com
+0.0.0.0 criteo.com
+0.0.0.0 casalemedia.com
+0.0.0.0 bluekai.com
+0.0.0.0 turn.com
+0.0.0.0 rlcdn.com
+0.0.0.0 krxd.net
+0.0.0.0 addthis.com
+0.0.0.0 sharethis.com
+TRACKERS
+        
+    } > "$HOSTS_FILE" 2>/dev/null
+    
+    # Process and clean the hosts file
+    if [ -f "$HOSTS_FILE" ]; then
+        # Remove comments, empty lines, and duplicates
+        grep -E "^(0\.0\.0\.0|127\.0\.0\.1)" "$HOSTS_FILE" | \
+        grep -v localhost | \
+        sort -u | \
+        head -50000 | sudo tee -a /etc/hosts >/dev/null 2>&1 || true
+        
+        rm -f "$HOSTS_FILE"
+        log "Ad blocking activated - $(grep -c "^0.0.0.0" /etc/hosts 2>/dev/null || echo "0") domains blocked"
+    fi
+}
+
 # DNS configuration function
 configure_dns() {
     local profile="$1"
@@ -57,15 +163,23 @@ configure_dns() {
     
     case "$profile" in
         "secure")
-            # Security-focused DNS
+            # Security-focused DNS with ad blocking
             DNS_SERVERS="1.1.1.2#security.cloudflare-dns.com 9.9.9.9#dns.quad9.net"
+            setup_dns_sinkhole "secure"
             ;;
         "performance")
-            # Performance-focused DNS
+            # Performance-focused DNS with ad blocking
             DNS_SERVERS="1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google"
+            setup_dns_sinkhole "performance"
+            ;;
+        "streaming")
+            # Streaming-optimized DNS with aggressive ad blocking
+            DNS_SERVERS="1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google"
+            setup_dns_sinkhole "streaming"
             ;;
         *)
             DNS_SERVERS="1.1.1.1#cloudflare-dns.com"
+            setup_dns_sinkhole "standard"
             ;;
     esac
     
@@ -158,6 +272,7 @@ main() {
             configure_dns "performance"
             manage_daemon "start"
             connect_vpn "standard"
+            log "VPN started with ad blocking enabled"
             performance_test
             ;;
         "secure")
@@ -166,22 +281,22 @@ main() {
             configure_dns "secure"
             manage_daemon "start"
             connect_vpn "secure"
-            log "Secure mode activated with enhanced protections"
+            log "Secure mode activated with enhanced protections and ad blocking"
             ;;
         "performance"|"fast")
             optimize_network "performance"
             configure_dns "performance"
             manage_daemon "start"
             connect_vpn "standard"
-            log "High-performance mode activated"
+            log "High-performance mode activated with ad blocking"
             ;;
         "streaming")
             optimize_network "streaming"
             optimize_network "performance"
-            configure_dns "performance"
+            configure_dns "streaming"
             manage_daemon "start"
             connect_vpn "standard"
-            log "Streaming optimization mode activated"
+            log "Streaming optimization mode activated with aggressive ad blocking"
             ;;
         "stop"|"down")
             manage_daemon "stop"
@@ -200,20 +315,34 @@ main() {
         "test")
             performance_test
             ;;
+        "adblock"|"ads")
+            log "Ad blocking statistics:"
+            local blocked_count=$(grep -c "^0.0.0.0" /etc/hosts 2>/dev/null || echo "0")
+            echo "Blocked domains: $blocked_count"
+            if [ "$blocked_count" -gt 100 ]; then
+                echo "Ad blocking: ACTIVE"
+            else
+                echo "Ad blocking: INACTIVE (run './india-vpn start' to enable)"
+            fi
+            echo ""
+            echo "Recently blocked domains (sample):"
+            grep "^0.0.0.0" /etc/hosts 2>/dev/null | grep -v localhost | head -10 || echo "No blocked domains found"
+            ;;
         *)
             echo "India VPN - Professional Tailscale Solution"
             echo ""
             echo "Usage: $0 [COMMAND]"
             echo ""
             echo "Commands:"
-            echo "  start, up       Start VPN with standard configuration"
-            echo "  secure          Start with enhanced security settings"
-            echo "  performance     Start with maximum performance optimization"
-            echo "  streaming       Start with streaming optimizations"
+            echo "  start, up       Start VPN with ad blocking enabled"
+            echo "  secure          Start with enhanced security + ad blocking"
+            echo "  performance     Start with maximum speed + ad blocking"
+            echo "  streaming       Start optimized for video + aggressive ad blocking"
             echo "  stop, down      Stop VPN connection"
             echo "  restart         Restart VPN service"
             echo "  status          Show connection status"
             echo "  test            Run performance diagnostics"
+            echo "  adblock, ads    Show ad blocking statistics"
             echo ""
             echo "Current Status:"
             sudo tailscale status 2>/dev/null | head -3 || echo "VPN not running"

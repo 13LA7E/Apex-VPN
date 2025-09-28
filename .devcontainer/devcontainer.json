@@ -3,7 +3,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postStartCommand": "bash /workspaces/India-VPN/india-vpn start",
+  "postStartCommand": "bash /workspaces/India-VPN/auto-start.sh",
   "privileged": true,
   "runArgs": ["--cap-add=NET_ADMIN", "--device=/dev/net/tun"],
   "remoteUser": "vscode"

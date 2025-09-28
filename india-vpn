@@ -203,19 +203,22 @@ manage_daemon() {
         "start")
             log "Starting optimized Tailscale daemon..."
             sudo pkill -9 tailscaled 2>/dev/null || true
-            sleep 0.1
+            sleep 0.05
             
             sudo mkdir -p "$TAILSCALE_STATE_DIR" /var/run/tailscale
-            sudo mount -t tmpfs -o size=100M,mode=755 tmpfs "$TAILSCALE_STATE_DIR" 2>/dev/null || true
+            sudo mount -t tmpfs -o size=50M,mode=755 tmpfs "$TAILSCALE_STATE_DIR" 2>/dev/null || true
             
+            # Start daemon with optimized flags for speed
             sudo tailscaled \
                 --state="$TAILSCALE_STATE_DIR/tailscaled.state" \
                 --socket="$TAILSCALE_SOCKET" \
                 --port="$TAILSCALE_PORT" \
-                --tun=userspace-networking &
+                --tun=userspace-networking \
+                --no-logs-no-support &
             
-            sleep 0.2
-            sudo renice -20 $(pgrep tailscaled) 2>/dev/null || true
+            sleep 0.1
+            # Priority boost in background to not delay startup
+            (sleep 0.1 && sudo renice -20 $(pgrep tailscaled) 2>/dev/null || true) &
             ;;
         "stop")
             log "Stopping Tailscale daemon..."
@@ -310,7 +313,18 @@ main() {
             connect_vpn "standard"
             ;;
         "status")
-            sudo tailscale status 2>/dev/null || echo "VPN not running"
+            # Quick status check with startup log info
+            if sudo tailscale status 2>/dev/null; then
+                echo ""
+                echo "✅ VPN is running and connected"
+            else
+                echo "VPN not running"
+                if [ -f /tmp/vpn-startup.log ]; then
+                    echo ""
+                    echo "📝 Auto-startup log:"
+                    tail -5 /tmp/vpn-startup.log 2>/dev/null || true
+                fi
+            fi
             ;;
         "test")
             performance_test
@@ -328,6 +342,42 @@ main() {
             echo "Recently blocked domains (sample):"
             grep "^0.0.0.0" /etc/hosts 2>/dev/null | grep -v localhost | head -10 || echo "No blocked domains found"
             ;;
+        "ready"|"check")
+            echo "🔍 System Readiness Check:"
+            echo ""
+            
+            # Check if Tailscale is installed
+            if command -v tailscale >/dev/null 2>&1; then
+                echo "✅ Tailscale: Installed"
+            else
+                echo "❌ Tailscale: Not installed"
+            fi
+            
+            # Check if VPN is running
+            if sudo tailscale status >/dev/null 2>&1; then
+                echo "✅ VPN Status: Connected"
+            else
+                echo "⏳ VPN Status: Not connected (may be starting up)"
+            fi
+            
+            # Check ad blocking
+            local blocked_count=$(grep -c "^0.0.0.0" /etc/hosts 2>/dev/null || echo "0")
+            if [ "$blocked_count" -gt 100 ]; then
+                echo "✅ Ad Blocking: Active ($blocked_count domains blocked)"
+            else
+                echo "⏳ Ad Blocking: Not active"
+            fi
+            
+            # Check startup log
+            if [ -f /tmp/vpn-startup.log ]; then
+                echo "✅ Auto-startup: Log available"
+                echo ""
+                echo "📝 Recent startup activity:"
+                tail -3 /tmp/vpn-startup.log 2>/dev/null || true
+            else
+                echo "⏳ Auto-startup: No log found"
+            fi
+            ;;
         *)
             echo "India VPN - Professional Tailscale Solution"
             echo ""
@@ -342,7 +392,8 @@ main() {
             echo "  restart         Restart VPN service"
             echo "  status          Show connection status"
             echo "  test            Run performance diagnostics"
-            echo "  adblock, ads    Show ad blocking statistics"
+            echo "  adblock, ads    Show ad blocking statistics"  
+            echo "  ready, check    Check if everything is working"
             echo ""
             echo "Current Status:"
             sudo tailscale status 2>/dev/null | head -3 || echo "VPN not running"

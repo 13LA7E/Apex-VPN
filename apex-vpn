@@ -254,10 +254,12 @@ connect_vpn() {
     if ! sudo tailscale status >/dev/null 2>&1; then
         log "Authentication required. Please visit the login URL..."
         
-        # Start with simple exit node configuration (working!)
+        # Optimized exit node configuration (tested working!)
         sudo tailscale up \
             --advertise-exit-node \
             --hostname=india-vpn \
+            --accept-routes \
+            --accept-dns=false \
             --timeout=30s
         
         # Save auth state if successful
@@ -269,10 +271,12 @@ connect_vpn() {
         fi
     else
         # Already authenticated, just connect with all security features
-        # Simple exit node configuration for compatibility
+        # Optimized exit node configuration (tested working!)
         sudo tailscale up \
             --advertise-exit-node \
             --hostname=india-vpn \
+            --accept-routes \
+            --accept-dns=false \
             --timeout=5s >/dev/null 2>&1
     fi
 }

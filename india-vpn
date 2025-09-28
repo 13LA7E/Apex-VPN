@@ -16,45 +16,37 @@ log() {
     echo "[$(date '+%H:%M:%S')] $1"
 }
 
-# Network optimization function
+# Ultimate network optimization - best of all worlds
 optimize_network() {
-    local mode="$1"
-    log "Applying $mode network optimizations..."
+    log "Applying ultimate network optimizations..."
     
-    case "$mode" in
-        "performance")
-            # High-performance TCP settings
-            sudo sysctl -w net.ipv4.tcp_congestion_control=bbr 2>/dev/null || true
-            sudo sysctl -w net.core.default_qdisc=cake 2>/dev/null || true
-            sudo sysctl -w net.core.rmem_max=134217728
-            sudo sysctl -w net.core.wmem_max=134217728
-            sudo sysctl -w net.ipv4.tcp_rmem="8192 1048576 134217728"
-            sudo sysctl -w net.ipv4.tcp_wmem="8192 1048576 134217728"
-            sudo sysctl -w net.ipv4.tcp_fastopen=3
-            sudo sysctl -w net.core.netdev_max_backlog=30000
-            ;;
-        "security")
-            # Security hardening
-            sudo sysctl -w net.ipv4.conf.all.accept_redirects=0
-            sudo sysctl -w net.ipv4.conf.all.send_redirects=0
-            sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
-            sudo sysctl -w net.ipv4.tcp_syncookies=1
-            sudo sysctl -w kernel.dmesg_restrict=1 2>/dev/null || true
-            ;;
-        "streaming")
-            # Streaming optimizations
-            sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0
-            sudo sysctl -w net.ipv4.tcp_window_scaling=1
-            sudo sysctl -w vm.swappiness=1
-            sudo sysctl -w vm.dirty_ratio=15
-            ;;
-    esac
+    # High-performance TCP settings
+    sudo sysctl -w net.ipv4.tcp_congestion_control=bbr 2>/dev/null || true
+    sudo sysctl -w net.core.default_qdisc=cake 2>/dev/null || true
+    sudo sysctl -w net.core.rmem_max=134217728
+    sudo sysctl -w net.core.wmem_max=134217728
+    sudo sysctl -w net.ipv4.tcp_rmem="8192 1048576 134217728"
+    sudo sysctl -w net.ipv4.tcp_wmem="8192 1048576 134217728"
+    sudo sysctl -w net.ipv4.tcp_fastopen=3
+    sudo sysctl -w net.core.netdev_max_backlog=30000
+    
+    # Security hardening
+    sudo sysctl -w net.ipv4.conf.all.accept_redirects=0
+    sudo sysctl -w net.ipv4.conf.all.send_redirects=0
+    sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
+    sudo sysctl -w net.ipv4.tcp_syncookies=1
+    sudo sysctl -w kernel.dmesg_restrict=1 2>/dev/null || true
+    
+    # Streaming optimizations
+    sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0
+    sudo sysctl -w net.ipv4.tcp_window_scaling=1
+    sudo sysctl -w vm.swappiness=1
+    sudo sysctl -w vm.dirty_ratio=15
 }
 
-# DNS sinkhole configuration for ad and tracker blocking
+# DNS sinkhole configuration for maximum ad and tracker blocking
 setup_dns_sinkhole() {
-    local profile="$1"
-    log "Setting up DNS ad blocking (profile: $profile)..."
+    log "Setting up maximum DNS ad blocking..."
     
     # Create hosts file for blocking
     local HOSTS_FILE="/tmp/adblock-hosts"
@@ -68,7 +60,7 @@ setup_dns_sinkhole() {
     # Start with clean hosts file
     sudo cp "$HOSTS_BACKUP" /etc/hosts 2>/dev/null || true
     
-    log "Downloading ad and tracker blocklists..."
+    log "Downloading comprehensive ad and tracker blocklists..."
     
     # Download multiple blocklists for comprehensive coverage
     {
@@ -157,32 +149,13 @@ TRACKERS
     fi
 }
 
-# DNS configuration function
+# DNS configuration - optimized for speed, security, and ad blocking
 configure_dns() {
-    local profile="$1"
-    log "Configuring DNS profile: $profile"
+    log "Configuring optimized DNS with security and performance"
     
-    case "$profile" in
-        "secure")
-            # Security-focused DNS with ad blocking
-            DNS_SERVERS="1.1.1.2#security.cloudflare-dns.com 9.9.9.9#dns.quad9.net"
-            setup_dns_sinkhole "secure"
-            ;;
-        "performance")
-            # Performance-focused DNS with ad blocking
-            DNS_SERVERS="1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google"
-            setup_dns_sinkhole "performance"
-            ;;
-        "streaming")
-            # Streaming-optimized DNS with aggressive ad blocking
-            DNS_SERVERS="1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google"
-            setup_dns_sinkhole "streaming"
-            ;;
-        *)
-            DNS_SERVERS="1.1.1.1#cloudflare-dns.com"
-            setup_dns_sinkhole "standard"
-            ;;
-    esac
+    # Use fastest secure DNS servers with fallbacks
+    DNS_SERVERS="1.1.1.1#cloudflare-dns.com 1.1.1.2#security.cloudflare-dns.com 8.8.8.8#dns.google 9.9.9.9#dns.quad9.net"
+    setup_dns_sinkhole
     
     if [ -d "/etc/systemd/resolved.conf.d" ]; then
         cat << EOF | sudo tee /etc/systemd/resolved.conf.d/vpn.conf >/dev/null
@@ -253,32 +226,20 @@ manage_daemon() {
     esac
 }
 
-# Connection function with authentication handling
+# Ultimate VPN connection with maximum security and performance
 connect_vpn() {
-    local mode="$1"
-    log "Connecting VPN in $mode mode..."
+    log "Connecting VPN with ultimate configuration..."
     
     # Check if we need to authenticate first
     if ! sudo tailscale status >/dev/null 2>&1; then
         log "Authentication required. Please visit the login URL..."
         
-        case "$mode" in
-            "secure")
-                sudo tailscale up \
-                    --accept-routes \
-                    --accept-dns=false \
-                    --advertise-exit-node \
-                    --shields-up \
-                    --timeout=30s
-                ;;
-            *)
-                sudo tailscale up \
-                    --accept-routes \
-                    --accept-dns=false \
-                    --advertise-exit-node \
-                    --timeout=30s
-                ;;
-        esac
+        sudo tailscale up \
+            --accept-routes \
+            --accept-dns=false \
+            --advertise-exit-node \
+            --shields-up \
+            --timeout=30s
         
         # Save auth state if successful
         if sudo tailscale status >/dev/null 2>&1; then
@@ -286,24 +247,13 @@ connect_vpn() {
             log "Authentication saved for future use"
         fi
     else
-        # Already authenticated, just connect
-        case "$mode" in
-            "secure")
-                sudo tailscale up \
-                    --accept-routes \
-                    --accept-dns=false \
-                    --advertise-exit-node \
-                    --shields-up \
-                    --timeout=5s >/dev/null 2>&1
-                ;;
-            *)
-                sudo tailscale up \
-                    --accept-routes \
-                    --accept-dns=false \
-                    --advertise-exit-node \
-                    --timeout=5s >/dev/null 2>&1
-                ;;
-        esac
+        # Already authenticated, just connect with all security features
+        sudo tailscale up \
+            --accept-routes \
+            --accept-dns=false \
+            --advertise-exit-node \
+            --shields-up \
+            --timeout=5s >/dev/null 2>&1
     fi
 }
 
@@ -322,39 +272,16 @@ performance_test() {
     echo "CPU: $(nproc) cores | RAM: $(free -h | awk '/^Mem:/{print $2}') | Load: $(uptime | awk '{print $NF}')"
 }
 
-# Main execution logic
+# Main execution logic - simplified single mode
 main() {
     case "${1:-status}" in
-        "start"|"up")
-            optimize_network "performance"
-            configure_dns "performance"
+        "start"|"up"|"performance"|"fast"|"secure"|"streaming")
+            optimize_network
+            configure_dns
             manage_daemon "start"
-            connect_vpn "standard"
-            log "VPN started with ad blocking enabled"
+            connect_vpn
+            log "Ultimate VPN activated - maximum speed, security, and ad blocking"
             performance_test
-            ;;
-        "secure")
-            optimize_network "security"
-            optimize_network "performance"
-            configure_dns "secure"
-            manage_daemon "start"
-            connect_vpn "secure"
-            log "Secure mode activated with enhanced protections and ad blocking"
-            ;;
-        "performance"|"fast")
-            optimize_network "performance"
-            configure_dns "performance"
-            manage_daemon "start"
-            connect_vpn "standard"
-            log "High-performance mode activated with ad blocking"
-            ;;
-        "streaming")
-            optimize_network "streaming"
-            optimize_network "performance"
-            configure_dns "streaming"
-            manage_daemon "start"
-            connect_vpn "standard"
-            log "Streaming optimization mode activated with aggressive ad blocking"
             ;;
         "stop"|"down")
             manage_daemon "stop"
@@ -363,15 +290,15 @@ main() {
         "restart")
             manage_daemon "stop"
             sleep 1
-            optimize_network "performance"
+            optimize_network
             manage_daemon "start"
-            connect_vpn "standard"
+            connect_vpn
             ;;
         "status")
             # Quick status check with startup log info
             if sudo tailscale status 2>/dev/null; then
                 echo ""
-                echo "✅ VPN is running and connected"
+                echo "✅ Ultimate VPN is running and connected"
             else
                 echo "VPN not running"
                 if [ -f /tmp/vpn-startup.log ]; then
@@ -389,7 +316,7 @@ main() {
             sudo tailscale logout 2>/dev/null || true
             rm -f "$AUTH_KEY_FILE" 2>/dev/null || true
             manage_daemon "start"
-            connect_vpn "standard"
+            connect_vpn
             ;;
         "adblock"|"ads")
             log "Ad blocking statistics:"
@@ -441,15 +368,12 @@ main() {
             fi
             ;;
         *)
-            echo "India VPN - Professional Tailscale Solution"
+            echo "India VPN - Ultimate Single-Mode Solution"
             echo ""
             echo "Usage: $0 [COMMAND]"
             echo ""
             echo "Commands:"
-            echo "  start, up       Start VPN with ad blocking enabled"
-            echo "  secure          Start with enhanced security + ad blocking"
-            echo "  performance     Start with maximum speed + ad blocking"
-            echo "  streaming       Start optimized for video + aggressive ad blocking"
+            echo "  start, up       Start ultimate VPN (max speed + security + ad blocking)"
             echo "  stop, down      Stop VPN connection"
             echo "  restart         Restart VPN service"
             echo "  login, auth     Re-authenticate with Tailscale (if logged out)"
@@ -457,6 +381,8 @@ main() {
             echo "  test            Run performance diagnostics"
             echo "  adblock, ads    Show ad blocking statistics"  
             echo "  ready, check    Check if everything is working"
+            echo ""
+            echo "Features: Maximum Performance + Military Security + 50,000+ Ad Blocking"
             echo ""
             echo "Current Status:"
             sudo tailscale status 2>/dev/null | head -3 || echo "VPN not running"

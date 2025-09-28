@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Manual VPN control script
+case "$1" in
+    status)
+        sudo tailscale status
+        ;;
+    up|start)
+        echo "🚀 Starting VPN..."
+        sudo tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock >/dev/null 2>&1 &
+        sleep 1
+        sudo tailscale up --accept-routes --accept-dns
+        sudo tailscale status
+        ;;
+    down|stop)
+        echo "🛑 Stopping VPN..."
+        sudo tailscale down
+        ;;
+    restart)
+        echo "🔄 Restarting VPN..."
+        sudo tailscale down
+        sudo killall tailscaled 2>/dev/null
+        sleep 1
+        sudo tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock >/dev/null 2>&1 &
+        sleep 1
+        sudo tailscale up --accept-routes --accept-dns
+        sudo tailscale status
+        ;;
+    *)
+        echo "⚡ India VPN Control"
+        echo ""
+        echo "Usage: $0 {status|up|down|restart}"
+        echo ""
+        echo "Commands:"
+        echo "  status   - Show VPN status"
+        echo "  up       - Start VPN connection"
+        echo "  down     - Stop VPN connection"  
+        echo "  restart  - Restart VPN connection"
+        echo ""
+        echo "Current status:"
+        sudo tailscale status 2>/dev/null || echo "VPN not running"
+        ;;
+esac

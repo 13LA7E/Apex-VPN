@@ -1,7 +1,10 @@
 {
-  "name": "India VPN",
-  "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
-  "postStartCommand": "bash /workspaces/India-VPN/start-vpn.sh",
+  "name": "India VPN - Instant ⚡",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postStartCommand": "bash /workspaces/India-VPN/instant-vpn.sh",
   "privileged": true,
-  "runArgs": ["--cap-add=NET_ADMIN", "--device=/dev/net/tun"]
+  "runArgs": ["--cap-add=NET_ADMIN", "--device=/dev/net/tun"],
+  "remoteUser": "vscode"
 }

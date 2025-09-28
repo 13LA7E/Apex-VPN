@@ -1,0 +1,7 @@
+{
+  "name": "India VPN",
+  "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
+  "postStartCommand": "bash /workspaces/India-VPN/start-vpn.sh",
+  "privileged": true,
+  "runArgs": ["--cap-add=NET_ADMIN", "--device=/dev/net/tun"]
+}

@@ -1,0 +1,10 @@
+# Tailscale state and logs
+/var/lib/tailscale/
+/var/run/tailscale/
+
+# System logs
+*.log
+
+# Temporary files
+.tmp/
+temp/

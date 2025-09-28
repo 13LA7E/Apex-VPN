@@ -22,7 +22,7 @@ sleep 5
 # Change to correct directory
 cd /workspaces/India-VPN || exit 1
 
-# Start APEX VPN
+# Start APEX VPN (suppress noise)
 log "🚀 Starting APEX VPN..."
 ./apex-vpn start >> "$LOG_FILE" 2>&1
 
@@ -34,10 +34,13 @@ if tailscale status >/dev/null 2>&1; then
     echo "✅ VPN Status: Connected and ready for 4K streaming"
     echo "🌐 India exit node available for unrestricted access"
     echo "🛡️ Ad blocking active (50,000+ domains blocked)"
+    echo ""
+    echo "📊 Current VPN Status:"
+    ./apex-vpn ready 2>/dev/null
 else
     log "⚠️ APEX VPN startup needs verification"
     echo "⚠️ APEX VPN autostart completed but needs verification"
-    echo "🔍 Run: tailscale status"
+    echo "🔍 Run: ./apex-vpn ready"
 fi
 
 log "🎯 Ultimate autostart complete"

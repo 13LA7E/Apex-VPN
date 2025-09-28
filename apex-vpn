@@ -207,6 +207,9 @@ manage_daemon() {
             # Setup persistent authentication
             setup_auth
             
+            # Ensure state directory has correct ownership
+            sudo chown -R vscode:vscode "$TAILSCALE_STATE_DIR" 2>/dev/null || true
+            
             # Start daemon with persistent state directory (no tmpfs!)
             sudo tailscaled \
                 --state="$TAILSCALE_STATE_DIR/tailscaled.state" \
@@ -218,6 +221,9 @@ manage_daemon() {
             sleep 0.1
             # Priority boost in background to not delay startup
             (sleep 0.1 && sudo renice -20 $(pgrep tailscaled) 2>/dev/null || true) &
+            
+            # Fix ownership of any files created by root
+            (sleep 0.5 && sudo chown -R vscode:vscode "$TAILSCALE_STATE_DIR" 2>/dev/null || true) &
             ;;
         "stop")
             log "Stopping Tailscale daemon..."
@@ -246,6 +252,8 @@ connect_vpn() {
         if sudo tailscale status >/dev/null 2>&1; then
             touch "$AUTH_KEY_FILE"
             log "Authentication saved for future use"
+            # Ensure persistent state has correct ownership
+            sudo chown -R vscode:vscode "$TAILSCALE_STATE_DIR" 2>/dev/null || true
         fi
     else
         # Already authenticated, just connect with all security features

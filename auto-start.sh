@@ -24,7 +24,12 @@ if [ ! -x "./apex-vpn" ]; then
 fi
 
 log_message "✅ Environment check passed"
-log_message "🚀 Starting APEX VPN in background..."
+log_message "� Ensuring persistent state ownership..."
+
+# Fix any ownership issues before starting
+sudo chown -R vscode:vscode /home/vscode/.tailscale-state/ 2>/dev/null || true
+
+log_message "�🚀 Starting APEX VPN in background..."
 
 # Start VPN in background
 {

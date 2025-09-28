@@ -21,6 +21,9 @@ log() {
 optimize_network() {
     log "Applying ultimate network optimizations..."
     
+    # Enable IP forwarding for exit node functionality
+    sudo sysctl -w net.ipv4.ip_forward=1 2>/dev/null || true
+    
     # High-performance TCP settings
     sudo sysctl -w net.ipv4.tcp_congestion_control=bbr 2>/dev/null || true
     sudo sysctl -w net.core.default_qdisc=cake 2>/dev/null || true
@@ -30,6 +33,9 @@ optimize_network() {
     sudo sysctl -w net.ipv4.tcp_wmem="8192 1048576 134217728"
     sudo sysctl -w net.ipv4.tcp_fastopen=3
     sudo sysctl -w net.core.netdev_max_backlog=30000
+    
+    # Configure NAT for exit node (allow traffic forwarding)
+    sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -d 100.64.0.0/10 -j MASQUERADE 2>/dev/null || true
     
     # Security hardening
     sudo sysctl -w net.ipv4.conf.all.accept_redirects=0

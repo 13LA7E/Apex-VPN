@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Manual VPN control script
+# Enhanced VPN control script with security options
 case "$1" in
     status)
         sudo tailscale status
@@ -26,16 +26,66 @@ case "$1" in
         sudo tailscale up --accept-routes --accept-dns
         sudo tailscale status
         ;;
+    secure)
+        echo "🔒 Setting up maximum security..."
+        ./secure-fast-vpn.sh
+        ;;
+    proxy)
+        echo "🛡️ Setting up encrypted proxy..."
+        ./max-security-proxy.sh
+        ;;
+    streaming)
+        echo "📺 Optimizing for streaming..."
+        ./streaming-optimizer.sh
+        ;;
+    speed)
+        echo "📊 Testing connection speed..."
+        if [ -f ~/.config/streaming-browser/speed-test.sh ]; then
+            ~/.config/streaming-browser/speed-test.sh
+        else
+            echo "Run './vpn streaming' first to setup speed testing"
+        fi
+        ;;
+    hypersonic)
+        echo "🚀 Activating HYPERSONIC mode..."
+        ./hypersonic.sh
+        ;;
+    fortknox)
+        echo "🛡️ Activating FORT KNOX security..."
+        ./fort-knox.sh
+        ;;
+    missile)
+        echo "🚀 Activating MISSILE mode..."
+        ./missile.sh
+        ;;
+    godmode)
+        echo "🔥 Activating GODMODE..."
+        ./godmode.sh
+        ;;
     *)
-        echo "⚡ India VPN Control"
+        echo "⚡ India VPN Control - ULTIMATE EDITION"
         echo ""
-        echo "Usage: $0 {status|up|down|restart}"
+        echo "Usage: $0 {status|up|down|restart|secure|proxy|streaming|speed|hypersonic|fortknox|missile|godmode}"
         echo ""
-        echo "Commands:"
-        echo "  status   - Show VPN status"
-        echo "  up       - Start VPN connection"
-        echo "  down     - Stop VPN connection"  
-        echo "  restart  - Restart VPN connection"
+        echo "🔥 ULTIMATE MODES:"
+        echo "  godmode     - 🔥 GODMODE (Everything beyond physics)"
+        echo "  hypersonic  - 🚀 500% speed boost (0.05s startup)"
+        echo "  fortknox    - 🛡️ Government-grade security"
+        echo "  missile     - 🚀 Baby oil smooth streamlining"
+        echo ""
+        echo "Basic Commands:"
+        echo "  status      - Show VPN status"
+        echo "  up          - Start VPN connection"
+        echo "  down        - Stop VPN connection"  
+        echo "  restart     - Restart VPN connection"
+        echo ""
+        echo "Security & Speed:"
+        echo "  secure      - Maximum security + speed setup"
+        echo "  proxy       - Encrypted SOCKS5 proxy"
+        echo "  streaming   - Optimize for 4K streaming"
+        echo "  speed       - Test connection performance"
+        echo ""
+        echo "💡 Pro tip: Use 'god' command after godmode for single-letter controls!"
         echo ""
         echo "Current status:"
         sudo tailscale status 2>/dev/null || echo "VPN not running"

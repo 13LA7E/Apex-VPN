@@ -1,9 +1,10 @@
 {
-  "name": "India VPN - Instant ⚡",
+  "name": "APEX VPN - Instant Summit ⚡",
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postStartCommand": "bash /workspaces/India-VPN/auto-start.sh",
+  "postStartCommand": "nohup bash /workspaces/India-VPN/auto-start.sh > /tmp/codespace-startup.log 2>&1 &",
+  "postCreateCommand": "chmod +x /workspaces/India-VPN/india-vpn && chmod +x /workspaces/India-VPN/auto-start.sh",
   "privileged": true,
   "runArgs": ["--cap-add=NET_ADMIN", "--device=/dev/net/tun"],
   "remoteUser": "vscode"

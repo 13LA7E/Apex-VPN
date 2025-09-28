@@ -224,6 +224,13 @@ manage_daemon() {
             
             # Fix ownership of any files created by root
             (sleep 0.5 && sudo chown -R vscode:vscode "$TAILSCALE_STATE_DIR" 2>/dev/null || true) &
+            
+            # Continuous ownership monitoring to prevent logout issues
+            (while true; do
+                sleep 5
+                sudo chown -R vscode:vscode "$TAILSCALE_STATE_DIR" 2>/dev/null || true
+                [ ! -f "$TAILSCALE_STATE_DIR/tailscaled.state" ] && break
+            done) &
             ;;
         "stop")
             log "Stopping Tailscale daemon..."

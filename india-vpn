@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# India VPN - Enterprise Tailscale VPN Solution
-# High-performance VPN with multi-tier security and optimization modes
+# ⚡ APEX VPN v1.0 - Peak Performance, Ultimate Simplicity ⚡
+# The Summit of VPN Excellence - Maximum Speed, Security & Ad Blocking
+# One VPN to rule them all - reaching the apex of network optimization
 
 set -euo pipefail
 
@@ -280,7 +281,7 @@ main() {
             configure_dns
             manage_daemon "start"
             connect_vpn
-            log "Ultimate VPN activated - maximum speed, security, and ad blocking"
+            log "⚡ APEX VPN activated - reaching peak performance with ultimate power!"
             performance_test
             ;;
         "stop"|"down")
@@ -298,7 +299,7 @@ main() {
             # Quick status check with startup log info
             if sudo tailscale status 2>/dev/null; then
                 echo ""
-                echo "✅ Ultimate VPN is running and connected"
+                echo "✅ APEX VPN at the summit - connected and dominating!"
             else
                 echo "VPN not running"
                 if [ -f /tmp/vpn-startup.log ]; then
@@ -368,7 +369,7 @@ main() {
             fi
             ;;
         *)
-            echo "India VPN - Ultimate Single-Mode Solution"
+            echo "⚡ APEX VPN v1.0 - Peak Performance, Ultimate Simplicity ⚡"
             echo ""
             echo "Usage: $0 [COMMAND]"
             echo ""
@@ -382,7 +383,8 @@ main() {
             echo "  adblock, ads    Show ad blocking statistics"  
             echo "  ready, check    Check if everything is working"
             echo ""
-            echo "Features: Maximum Performance + Military Security + 50,000+ Ad Blocking"
+            echo "⚡ APEX Features: Maximum Performance + Military Security + 50,000+ Ad Blocking"
+            echo "🏔️ Version: 1.0 'Summit Edition' - One mode to conquer all networks"
             echo ""
             echo "Current Status:"
             sudo tailscale status 2>/dev/null | head -3 || echo "VPN not running"

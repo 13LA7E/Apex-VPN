@@ -6,9 +6,10 @@
 set -euo pipefail
 
 # Configuration
-readonly TAILSCALE_STATE_DIR="/tmp/tailscale-optimized"
+readonly TAILSCALE_STATE_DIR="/home/vscode/.tailscale-state"
 readonly TAILSCALE_SOCKET="/var/run/tailscale/tailscaled.sock"
 readonly TAILSCALE_PORT="41641"
+readonly AUTH_KEY_FILE="/home/vscode/.tailscale-auth"
 
 # Logging function
 log() {
@@ -195,20 +196,44 @@ EOF
     fi
 }
 
+# Authentication management
+setup_auth() {
+    log "Setting up persistent authentication..."
+    
+    # Create persistent state directory
+    sudo mkdir -p "$TAILSCALE_STATE_DIR" /var/run/tailscale
+    sudo chown vscode:vscode "$TAILSCALE_STATE_DIR" 2>/dev/null || true
+    
+    # Check if we have a saved auth key
+    if [ -f "$AUTH_KEY_FILE" ]; then
+        log "Found saved authentication"
+        return 0
+    fi
+    
+    # Check if already authenticated
+    if sudo tailscale status >/dev/null 2>&1; then
+        log "Already authenticated"
+        return 0
+    fi
+    
+    log "First-time setup: Please authenticate via the web interface"
+    return 0
+}
+
 # Tailscale daemon management
 manage_daemon() {
     local action="$1"
     
     case "$action" in
         "start")
-            log "Starting optimized Tailscale daemon..."
+            log "Starting persistent Tailscale daemon..."
             sudo pkill -9 tailscaled 2>/dev/null || true
             sleep 0.05
             
-            sudo mkdir -p "$TAILSCALE_STATE_DIR" /var/run/tailscale
-            sudo mount -t tmpfs -o size=50M,mode=755 tmpfs "$TAILSCALE_STATE_DIR" 2>/dev/null || true
+            # Setup persistent authentication
+            setup_auth
             
-            # Start daemon with optimized flags for speed
+            # Start daemon with persistent state directory (no tmpfs!)
             sudo tailscaled \
                 --state="$TAILSCALE_STATE_DIR/tailscaled.state" \
                 --socket="$TAILSCALE_SOCKET" \
@@ -228,28 +253,58 @@ manage_daemon() {
     esac
 }
 
-# Connection function
+# Connection function with authentication handling
 connect_vpn() {
     local mode="$1"
     log "Connecting VPN in $mode mode..."
     
-    case "$mode" in
-        "secure")
-            sudo tailscale up \
-                --accept-routes \
-                --accept-dns=false \
-                --advertise-exit-node \
-                --shields-up \
-                --timeout=5s >/dev/null 2>&1
-            ;;
-        *)
-            sudo tailscale up \
-                --accept-routes \
-                --accept-dns=false \
-                --advertise-exit-node \
-                --timeout=5s >/dev/null 2>&1
-            ;;
-    esac
+    # Check if we need to authenticate first
+    if ! sudo tailscale status >/dev/null 2>&1; then
+        log "Authentication required. Please visit the login URL..."
+        
+        case "$mode" in
+            "secure")
+                sudo tailscale up \
+                    --accept-routes \
+                    --accept-dns=false \
+                    --advertise-exit-node \
+                    --shields-up \
+                    --timeout=30s
+                ;;
+            *)
+                sudo tailscale up \
+                    --accept-routes \
+                    --accept-dns=false \
+                    --advertise-exit-node \
+                    --timeout=30s
+                ;;
+        esac
+        
+        # Save auth state if successful
+        if sudo tailscale status >/dev/null 2>&1; then
+            touch "$AUTH_KEY_FILE"
+            log "Authentication saved for future use"
+        fi
+    else
+        # Already authenticated, just connect
+        case "$mode" in
+            "secure")
+                sudo tailscale up \
+                    --accept-routes \
+                    --accept-dns=false \
+                    --advertise-exit-node \
+                    --shields-up \
+                    --timeout=5s >/dev/null 2>&1
+                ;;
+            *)
+                sudo tailscale up \
+                    --accept-routes \
+                    --accept-dns=false \
+                    --advertise-exit-node \
+                    --timeout=5s >/dev/null 2>&1
+                ;;
+        esac
+    fi
 }
 
 # Performance test function
@@ -329,6 +384,13 @@ main() {
         "test")
             performance_test
             ;;
+        "login"|"auth")
+            log "Re-authenticating with Tailscale..."
+            sudo tailscale logout 2>/dev/null || true
+            rm -f "$AUTH_KEY_FILE" 2>/dev/null || true
+            manage_daemon "start"
+            connect_vpn "standard"
+            ;;
         "adblock"|"ads")
             log "Ad blocking statistics:"
             local blocked_count=$(grep -c "^0.0.0.0" /etc/hosts 2>/dev/null || echo "0")
@@ -390,6 +452,7 @@ main() {
             echo "  streaming       Start optimized for video + aggressive ad blocking"
             echo "  stop, down      Stop VPN connection"
             echo "  restart         Restart VPN service"
+            echo "  login, auth     Re-authenticate with Tailscale (if logged out)"
             echo "  status          Show connection status"
             echo "  test            Run performance diagnostics"
             echo "  adblock, ads    Show ad blocking statistics"  

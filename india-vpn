@@ -1,0 +1,225 @@
+#!/bin/bash
+
+# India VPN - Enterprise Tailscale VPN Solution
+# High-performance VPN with multi-tier security and optimization modes
+
+set -euo pipefail
+
+# Configuration
+readonly TAILSCALE_STATE_DIR="/tmp/tailscale-optimized"
+readonly TAILSCALE_SOCKET="/var/run/tailscale/tailscaled.sock"
+readonly TAILSCALE_PORT="41641"
+
+# Logging function
+log() {
+    echo "[$(date '+%H:%M:%S')] $1"
+}
+
+# Network optimization function
+optimize_network() {
+    local mode="$1"
+    log "Applying $mode network optimizations..."
+    
+    case "$mode" in
+        "performance")
+            # High-performance TCP settings
+            sudo sysctl -w net.ipv4.tcp_congestion_control=bbr 2>/dev/null || true
+            sudo sysctl -w net.core.default_qdisc=cake 2>/dev/null || true
+            sudo sysctl -w net.core.rmem_max=134217728
+            sudo sysctl -w net.core.wmem_max=134217728
+            sudo sysctl -w net.ipv4.tcp_rmem="8192 1048576 134217728"
+            sudo sysctl -w net.ipv4.tcp_wmem="8192 1048576 134217728"
+            sudo sysctl -w net.ipv4.tcp_fastopen=3
+            sudo sysctl -w net.core.netdev_max_backlog=30000
+            ;;
+        "security")
+            # Security hardening
+            sudo sysctl -w net.ipv4.conf.all.accept_redirects=0
+            sudo sysctl -w net.ipv4.conf.all.send_redirects=0
+            sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
+            sudo sysctl -w net.ipv4.tcp_syncookies=1
+            sudo sysctl -w kernel.dmesg_restrict=1 2>/dev/null || true
+            ;;
+        "streaming")
+            # Streaming optimizations
+            sudo sysctl -w net.ipv4.tcp_slow_start_after_idle=0
+            sudo sysctl -w net.ipv4.tcp_window_scaling=1
+            sudo sysctl -w vm.swappiness=1
+            sudo sysctl -w vm.dirty_ratio=15
+            ;;
+    esac
+}
+
+# DNS configuration function
+configure_dns() {
+    local profile="$1"
+    log "Configuring DNS profile: $profile"
+    
+    case "$profile" in
+        "secure")
+            # Security-focused DNS
+            DNS_SERVERS="1.1.1.2#security.cloudflare-dns.com 9.9.9.9#dns.quad9.net"
+            ;;
+        "performance")
+            # Performance-focused DNS
+            DNS_SERVERS="1.1.1.1#cloudflare-dns.com 8.8.8.8#dns.google"
+            ;;
+        *)
+            DNS_SERVERS="1.1.1.1#cloudflare-dns.com"
+            ;;
+    esac
+    
+    if [ -d "/etc/systemd/resolved.conf.d" ]; then
+        cat << EOF | sudo tee /etc/systemd/resolved.conf.d/vpn.conf >/dev/null
+[Resolve]
+DNS=$DNS_SERVERS
+DNSOverTLS=yes
+DNSSEC=yes
+Cache=yes
+EOF
+        sudo systemctl restart systemd-resolved 2>/dev/null || true
+    fi
+}
+
+# Tailscale daemon management
+manage_daemon() {
+    local action="$1"
+    
+    case "$action" in
+        "start")
+            log "Starting optimized Tailscale daemon..."
+            sudo pkill -9 tailscaled 2>/dev/null || true
+            sleep 0.1
+            
+            sudo mkdir -p "$TAILSCALE_STATE_DIR" /var/run/tailscale
+            sudo mount -t tmpfs -o size=100M,mode=755 tmpfs "$TAILSCALE_STATE_DIR" 2>/dev/null || true
+            
+            sudo tailscaled \
+                --state="$TAILSCALE_STATE_DIR/tailscaled.state" \
+                --socket="$TAILSCALE_SOCKET" \
+                --port="$TAILSCALE_PORT" \
+                --tun=userspace-networking &
+            
+            sleep 0.2
+            sudo renice -20 $(pgrep tailscaled) 2>/dev/null || true
+            ;;
+        "stop")
+            log "Stopping Tailscale daemon..."
+            sudo tailscale down 2>/dev/null || true
+            sudo pkill tailscaled 2>/dev/null || true
+            ;;
+    esac
+}
+
+# Connection function
+connect_vpn() {
+    local mode="$1"
+    log "Connecting VPN in $mode mode..."
+    
+    case "$mode" in
+        "secure")
+            sudo tailscale up \
+                --accept-routes \
+                --accept-dns=false \
+                --advertise-exit-node \
+                --shields-up \
+                --timeout=5s >/dev/null 2>&1
+            ;;
+        *)
+            sudo tailscale up \
+                --accept-routes \
+                --accept-dns=false \
+                --advertise-exit-node \
+                --timeout=5s >/dev/null 2>&1
+            ;;
+    esac
+}
+
+# Performance test function
+performance_test() {
+    log "Running performance diagnostics..."
+    echo "Network Status:"
+    sudo tailscale status 2>/dev/null | head -5 || echo "VPN not connected"
+    
+    echo ""
+    echo "Connection Test:"
+    ping -c 3 8.8.8.8 2>/dev/null | grep 'time=' | tail -1 || echo "Network test failed"
+    
+    echo ""
+    echo "System Resources:"
+    echo "CPU: $(nproc) cores | RAM: $(free -h | awk '/^Mem:/{print $2}') | Load: $(uptime | awk '{print $NF}')"
+}
+
+# Main execution logic
+main() {
+    case "${1:-status}" in
+        "start"|"up")
+            optimize_network "performance"
+            configure_dns "performance"
+            manage_daemon "start"
+            connect_vpn "standard"
+            performance_test
+            ;;
+        "secure")
+            optimize_network "security"
+            optimize_network "performance"
+            configure_dns "secure"
+            manage_daemon "start"
+            connect_vpn "secure"
+            log "Secure mode activated with enhanced protections"
+            ;;
+        "performance"|"fast")
+            optimize_network "performance"
+            configure_dns "performance"
+            manage_daemon "start"
+            connect_vpn "standard"
+            log "High-performance mode activated"
+            ;;
+        "streaming")
+            optimize_network "streaming"
+            optimize_network "performance"
+            configure_dns "performance"
+            manage_daemon "start"
+            connect_vpn "standard"
+            log "Streaming optimization mode activated"
+            ;;
+        "stop"|"down")
+            manage_daemon "stop"
+            log "VPN stopped"
+            ;;
+        "restart")
+            manage_daemon "stop"
+            sleep 1
+            optimize_network "performance"
+            manage_daemon "start"
+            connect_vpn "standard"
+            ;;
+        "status")
+            sudo tailscale status 2>/dev/null || echo "VPN not running"
+            ;;
+        "test")
+            performance_test
+            ;;
+        *)
+            echo "India VPN - Professional Tailscale Solution"
+            echo ""
+            echo "Usage: $0 [COMMAND]"
+            echo ""
+            echo "Commands:"
+            echo "  start, up       Start VPN with standard configuration"
+            echo "  secure          Start with enhanced security settings"
+            echo "  performance     Start with maximum performance optimization"
+            echo "  streaming       Start with streaming optimizations"
+            echo "  stop, down      Stop VPN connection"
+            echo "  restart         Restart VPN service"
+            echo "  status          Show connection status"
+            echo "  test            Run performance diagnostics"
+            echo ""
+            echo "Current Status:"
+            sudo tailscale status 2>/dev/null | head -3 || echo "VPN not running"
+            ;;
+    esac
+}
+
+# Execute main function with all arguments
+main "$@"

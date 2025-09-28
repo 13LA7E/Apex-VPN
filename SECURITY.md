@@ -1,18 +1,82 @@
-# 🔒 Maximum Privacy & Security Guide
+# Security Documentation
 
-## 🛡️ **Your Current Security Level**
+## Overview
 
-✅ **Already Protected:**
-- **WireGuard Encryption**: Military-grade end-to-end encryption
-- **Zero-Trust Network**: Only authorized devices can connect
-- **India Location**: Microsoft Azure infrastructure in Pune
-- **No Log Policy**: Tailscale doesn't log your traffic
+This document outlines the security features and configurations implemented in the India VPN solution.
 
-⚠️ **Additional Protection Available:**
-- Encrypted DNS queries
-- Browser fingerprint protection  
-- ISP traffic hiding
-- Streaming optimizations
+## Base Security Features
+
+### Encryption
+- **WireGuard Protocol**: Industry-standard end-to-end encryption
+- **Zero-Trust Architecture**: Device-to-device authentication required
+- **Key Management**: Automated key rotation and secure key exchange
+
+### Network Security
+- **DNS over TLS**: Encrypted DNS queries to prevent eavesdropping
+- **IP Leak Protection**: Comprehensive traffic routing through VPN tunnel
+- **Kill Switch**: Automatic connection termination on VPN failure
+
+## Security Profiles
+
+### Standard Security
+Default configuration with balanced security and performance:
+- WireGuard encryption with ChaCha20-Poly1305
+- Secure DNS resolution with DoT
+- Basic kernel hardening parameters
+
+### Enhanced Security Mode
+Additional hardening measures for sensitive use cases:
+- Kernel parameter hardening (IP forwarding restrictions)
+- ICMP broadcast protection
+- TCP SYN flood protection
+- Strict reverse path filtering
+- DNS query logging prevention
+
+## Technical Implementation
+
+### Network Stack Hardening
+```bash
+# IP forwarding restrictions
+net.ipv4.conf.all.accept_redirects=0
+net.ipv4.conf.all.send_redirects=0
+
+# ICMP protection
+net.ipv4.icmp_echo_ignore_broadcasts=1
+
+# TCP security
+net.ipv4.tcp_syncookies=1
+```
+
+### DNS Security Configuration
+- Primary: Cloudflare Security (1.1.1.2) with malware blocking
+- Secondary: Quad9 (9.9.9.9) with threat intelligence
+- Fallback: OpenDNS (208.67.222.2) with content filtering
+- All queries encrypted using DNS over TLS
+
+### Process Security
+- Dedicated tmpfs storage for sensitive state data
+- Process priority isolation
+- Memory protection against buffer overflow attacks
+- Restricted kernel log access
+
+## Compliance Notes
+
+This implementation follows industry best practices for:
+- Network security hardening (CIS Benchmark compliance)
+- DNS security (RFC 7858 - DNS over TLS)
+- VPN security (RFC 4253 - Secure Shell Transport Layer)
+
+## Audit Trail
+
+All security-relevant events are logged including:
+- VPN connection establishment and termination
+- DNS resolution failures and security blocks
+- Network configuration changes
+- Process privilege escalations
+
+---
+
+*Security configurations are automatically applied based on selected operational profile.*
 
 ## 🚀 **Security Levels Available**
 

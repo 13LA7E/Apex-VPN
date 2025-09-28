@@ -15,9 +15,26 @@ APEX VPN helps you reach the summit of internet freedom:
 
 Perfect for streaming geo-restricted content, accessing regional websites, or browsing with peak privacy and performance.
 
-## 🏔️ Instant Summit Setup
+## 🏔️ Instant Summit Setup (Docker-Free!)
 
-**Just 2 steps to reach the peak:**
+**Pure GitHub Codespaces - No Docker needed!**
+
+### 🚀 New Codespace Setup:
+```bash
+# One-time setup (first run only)
+./setup-codespace.sh
+
+# Start APEX VPN
+./apex-vpn start
+```
+
+### 🔄 Existing Codespace:
+```bash
+# Just start APEX VPN
+./apex-vpn start
+
+# Or restart terminal for automatic startup
+```
 
 1. **Fork this repository** (click the Fork button above)
 2. **Open in GitHub Codespaces** (green Code button → Codespaces → Create)

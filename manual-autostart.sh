@@ -7,10 +7,10 @@ echo "🏔️ Setting up APEX VPN Manual Auto-Start..."
 # Create the auto-start command
 AUTOSTART_CMD='
 # APEX VPN Auto-Start
-if [ -f "/workspaces/India-VPN/india-vpn" ] && [ ! -f "/tmp/apex-started" ]; then
+if [ -f "/workspaces/Apex-VPN/apex-vpn" ] && [ ! -f "/tmp/apex-started" ]; then
     echo "⚡ APEX VPN auto-starting..."
     touch /tmp/apex-started
-    (cd /workspaces/India-VPN && nohup ./auto-start.sh > /tmp/manual-autostart.log 2>&1 &)
+    (cd /workspaces/Apex-VPN && nohup ./auto-start.sh > /tmp/manual-autostart.log 2>&1 &)
 fi
 '
 
@@ -33,4 +33,4 @@ echo "🎯 Manual auto-start setup complete!"
 echo "💡 This will ensure APEX VPN starts automatically when you open a terminal"
 echo "🔄 Run 'source ~/.bashrc' or restart your terminal to activate"
 echo ""
-echo "📝 To test: ./india-vpn ready"
+echo "📝 To test: ./apex-vpn ready"

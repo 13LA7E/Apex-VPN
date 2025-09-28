@@ -11,7 +11,7 @@ This VPN provides multiple layers of protection to keep your internet activity p
 - **Government surveillance** is blocked by encryption
 - **Hackers on public WiFi** can't intercept your data
 - **Advertisers** can't track you across websites
-- **Your location** appears as India instead of your real location
+- **Your location** appears as your chosen exit node location instead of your real location
 
 ### Ads and Malware
 - **99% of web ads** are blocked before they load
@@ -32,13 +32,13 @@ This VPN provides multiple layers of protection to keep your internet activity p
 ### 1. Encryption Tunnel
 Think of it like a **secret tunnel** for your internet:
 - All your data is scrambled (encrypted) before leaving your device
-- Only the VPN server in India can unscramble it
+- Only the VPN exit node server can unscramble it
 - Nobody in between can see what you're doing
 
 ### 2. Location Masking
-The VPN makes you appear to be in India:
-- Websites see an Indian IP address, not your real one
-- You can access Indian content from anywhere
+The VPN makes you appear to be in your chosen exit location:
+- Websites see your exit node IP address, not your real one
+- You can access geo-restricted content from anywhere
 - Your real location stays hidden
 
 ### 3. Ad and Tracker Blocking
@@ -53,7 +53,7 @@ Before websites even load, we block:
 ### Basic Mode (`./india-vpn start`)
 **Good for**: General browsing, streaming, everyday use
 - Strong encryption protects your data
-- India IP address for geo-restricted content
+- Exit node IP address for geo-restricted content
 - Basic ad blocking (95% of ads blocked)
 - Fast and reliable connection
 
@@ -94,7 +94,7 @@ Actually, it often makes it faster because:
 Yes! The VPN is designed to:
 - Allow access to local network devices
 - Let you use local services normally
-- Only route internet traffic through India
+- Only route internet traffic through chosen exit nodes
 - Keep local connections working
 
 ### What About My Phone Apps?
@@ -149,7 +149,7 @@ The ad blocking works on:
 ./vpn up
 ```
 - Tailscale WireGuard encryption
-- India IP address
+- Exit node IP address
 - Basic privacy protection
 
 ### **Level 2: Enhanced Security**
@@ -272,7 +272,7 @@ curl --proxy socks5://127.0.0.1:1080 https://ipapi.co/ip
 
 ## 🌍 **Server Locations Available**
 Your Tailscale network can include exit nodes in:
-- 🇮🇳 India (Current: Pune, Maharashtra)
+- � Global (Configurable: USA, Europe, India, Asia-Pacific)
 - 🇺🇸 United States  
 - 🇬🇧 United Kingdom
 - 🇩🇪 Germany

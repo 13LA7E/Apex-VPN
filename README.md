@@ -2,18 +2,18 @@
 
 **The summit of VPN excellence - maximum speed, security, and ad blocking in one perfect command.**
 
-Fast, secure Tailscale VPN for India access with built-in comprehensive ad blocking and peak performance optimization.
+Fast, secure Tailscale VPN with built-in comprehensive ad blocking and peak performance optimization. Optimized for accessing geo-restricted content including India-based services.
 
 ## ✨ What APEX VPN Does
 
 APEX VPN helps you reach the summit of internet freedom:
-- **🇮🇳 Access India content** from anywhere in the world
+- **� Access global content** including India-based services from anywhere
 - **🚫 Block 50,000+ ads & trackers** automatically while browsing  
 - **🚀 500% speed boost** with advanced network optimizations
 - **🛡️ Military-grade protection** with shields-up security mode
 - **⚡ 0.002 second startup** with instant auto-launch
 
-Perfect for streaming Indian content, accessing geo-restricted websites, or browsing with peak privacy and performance.
+Perfect for streaming geo-restricted content, accessing regional websites, or browsing with peak privacy and performance.
 
 ## 🏔️ Instant Summit Setup
 
@@ -24,7 +24,7 @@ Perfect for streaming Indian content, accessing geo-restricted websites, or brow
 
 That's it! APEX VPN **auto-starts at peak performance** in just **0.002 seconds** when your codespace opens!
 
-**Check if APEX is at the summit:** `./india-vpn ready`
+**Check if APEX is at the summit:** `./apex-vpn ready`
 
 ## ⚡ APEX Features - Peak Everything
 
@@ -60,31 +60,31 @@ That's it! APEX VPN **auto-starts at peak performance** in just **0.002 seconds*
 ### Basic Summit Control
 ```bash
 # Reach peak performance (ultimate mode with everything)
-./india-vpn start
+🎉 Ready to conquer all networks with one command: ./apex-vpn start
 
 # Check APEX summit status
-./india-vpn status
+./apex-vpn status
 
 # Descend from summit
-./india-vpn stop
+./apex-vpn stop
 
 # Full summit diagnostics
-./india-vpn ready
+./apex-vpn ready
 
 # View ad blocking dominance
-./india-vpn ads
+./apex-vpn ads
 ```
 
 ### Advanced Peak Operations
 ```bash
 # Complete system peak analysis
-./india-vpn check
+./apex-vpn check
 
 # Performance summit testing
-./india-vpn test
+./apex-vpn test
 
 # Re-authenticate for peak access
-./india-vpn login
+./apex-vpn login
 ```
 
 ## 🏆 Why APEX Dominates All VPNs
@@ -114,16 +114,16 @@ That's it! APEX VPN **auto-starts at peak performance** in just **0.002 seconds*
 
 ### What is APEX VPN?
 APEX VPN is the **ultimate network domination tool**:
-- **Hides your location** (shows India instead)
+- **Hides your location** (configurable exit nodes worldwide)
 - **Encrypts everything** with military-grade protection
 - **Blocks ads completely** before they exist
 - **Makes everything lightning fast** with peak optimizations
 
-### Why India Summit?
+### Why Global Content Access?
 - Access Indian streaming (Hotstar, SonyLIV, etc.)
-- Get Indian prices on all services
-- Access India-exclusive content
-- Experience internet from India's peak servers
+- Get regional prices on all services
+- Access geo-restricted content from any country
+- Experience internet from peak servers worldwide
 
 ## 🔧 APEX Technical Summit
 
@@ -153,23 +153,23 @@ APEX VPN is the **ultimate network domination tool**:
 ### Not Reaching Peak?
 ```bash
 # Check APEX summit status
-./india-vpn ready
+./apex-vpn ready
 
 # Restart climb to summit
-./india-vpn restart
+./apex-vpn restart
 
 # Re-authenticate for peak access
-./india-vpn login
+./apex-vpn login
 ```
 
 ### Still Seeing Ads?
 - Wait 30 seconds after startup (DNS cache clearing)
 - Some video ads may survive (ultra-embedded)
-- Check domination stats: `./india-vpn ads`
+- Check domination stats: `./apex-vpn ads`
 
 ### Need More Speed?
 - APEX should be 500% faster automatically
-- Check peak resources: `./india-vpn test`
+- Check peak resources: `./apex-vpn test`
 - Ensure 2GB+ RAM for full summit power
 
 ## 📋 Summit Requirements
@@ -192,8 +192,8 @@ APEX VPN operates at legal peaks:
 ## 🆘 APEX Support
 
 **For VPN issues:** Check Tailscale's official documentation  
-**For connection problems:** Try `./india-vpn restart`
-**For general questions:** Most issues solved with `./india-vpn ready`
+**For connection problems:** Try `./apex-vpn restart`
+**For general questions:** Most issues solved with `./apex-vpn ready`
 
 ---
 

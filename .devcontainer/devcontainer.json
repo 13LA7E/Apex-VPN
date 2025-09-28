@@ -1,8 +1,8 @@
 {
   "name": "APEX VPN - Instant Summit ⚡",
   "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "postStartCommand": "nohup bash /workspaces/India-VPN/auto-start.sh > /tmp/codespace-startup.log 2>&1 &",
-  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y curl && curl -fsSL https://tailscale.com/install.sh | sh && chmod +x /workspaces/India-VPN/apex-vpn && chmod +x /workspaces/India-VPN/auto-start.sh && sudo mkdir -p /home/vscode/.tailscale-state && sudo chown -R vscode:vscode /home/vscode/.tailscale-state",
+  "postStartCommand": "sleep 3 && cd /workspaces/India-VPN && nohup bash auto-start.sh > /tmp/codespace-startup.log 2>&1 & echo 'APEX VPN autostart initiated from DevContainer'",
+  "postCreateCommand": "curl -fsSL https://tailscale.com/install.sh | sudo sh && chmod +x /workspaces/India-VPN/apex-vpn && chmod +x /workspaces/India-VPN/auto-start.sh && sudo mkdir -p /home/vscode/.tailscale-state && sudo chown -R vscode:vscode /home/vscode/.tailscale-state",
   "privileged": true,
   "capAdd": ["NET_ADMIN"],
   "mounts": [
@@ -16,7 +16,7 @@
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
-      "configureZshAsDefaultShell": true
+      "configureZshAsDefaultShell": false
     }
   }
 }

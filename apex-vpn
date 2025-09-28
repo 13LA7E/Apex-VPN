@@ -281,7 +281,18 @@ performance_test() {
     
     echo ""
     echo "Connection Test:"
-    ping -c 3 8.8.8.8 2>/dev/null | grep 'time=' | tail -1 || echo "Network test failed"
+    # Test network connectivity using curl (more reliable than ping)
+    if curl -s --connect-timeout 3 --max-time 5 https://8.8.8.8 >/dev/null 2>&1; then
+        # Get actual response time
+        RESPONSE_TIME=$(curl -s --connect-timeout 3 --max-time 5 -w "%{time_total}" -o /dev/null https://httpbin.org/ip 2>/dev/null)
+        if [ ! -z "$RESPONSE_TIME" ]; then
+            echo "✅ Network test successful - Response time: ${RESPONSE_TIME}s"
+        else
+            echo "✅ Network connectivity confirmed"
+        fi
+    else
+        echo "❌ Network connectivity issue detected"
+    fi
     
     echo ""
     echo "System Resources:"

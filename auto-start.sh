@@ -1,36 +1,34 @@
 #!/bin/bash
 # APEX VPN Auto-Start Script v1.0
-# Automatically starts APEX VPN when codespace opens
 
 LOG_FILE="/tmp/vpn-startup.log"
-CODESPACE_LOG="/tmp/codespace-startup.log"
 
 # Function to log messages
 log_message() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE" "$CODESPACE_LOG"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
 log_message "⚡ APEX VPN Auto-Start Initiated"
 log_message "🔍 Checking environment..."
 
-# Check if we're in the right directory
-cd /workspaces/Apex-VPN 2>/dev/null || {
+# Change to VPN directory
+if ! cd /workspaces/India-VPN; then
     log_message "❌ Failed to change to VPN directory"
     exit 1
-}
+fi
 
 # Check if the main script exists
 if [ ! -x "./apex-vpn" ]; then
     log_message "❌ APEX VPN script not found or not executable"
     exit 1
-}
+fi
 
 log_message "✅ Environment check passed"
 log_message "🚀 Starting APEX VPN in background..."
 
-# Start VPN in background with proper error handling
+# Start VPN in background
 {
-    sleep 3  # Give system time to fully initialize
+    sleep 3
     log_message "🏔️ Launching APEX VPN..."
     ./apex-vpn start 2>&1 | tee -a "$LOG_FILE"
     
@@ -41,8 +39,7 @@ log_message "🚀 Starting APEX VPN in background..."
     fi
     
     log_message "📊 Final status check..."
-    ./apex-vpn ready 2>&1 | tee -a "$LOG_FILE"
-    
+    ./apex-vpn ready
 } &
 
 log_message "🎯 APEX VPN auto-start process initiated in background"

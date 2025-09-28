@@ -1,5 +1,6 @@
 #!/bin/bash
-# APEX VPN Auto-Start Script v1.0
+# APEX VPN Aulog_message "✅ Environment check passed"
+log_message "🚀 Starting APEX VPN in background..."t Script v1.0
 
 LOG_FILE="/tmp/vpn-startup.log"
 

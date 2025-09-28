@@ -22,12 +22,6 @@ sleep 5
 # Change to correct directory
 cd /workspaces/India-VPN || exit 1
 
-# Check if already running
-if tailscale status >/dev/null 2>&1; then
-    log "✅ APEX VPN already running"
-    exit 0
-fi
-
 # Start APEX VPN
 log "🚀 Starting APEX VPN..."
 ./apex-vpn start >> "$LOG_FILE" 2>&1
